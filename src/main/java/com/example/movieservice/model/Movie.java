@@ -10,14 +10,14 @@ public class Movie {
     private int id;
 
     private String title;
-    private String year;
+    private int year;
     private String category;
     private int minutes;
 
     public Movie() {
     }
 
-    public Movie(String title, String year, String category, int minutes) {
+    public Movie(String title, int year, String category, int minutes) {
         setTitle(title);
         setYear(year);
         setCategory(category);
@@ -40,11 +40,11 @@ public class Movie {
         this.title = title;
     }
 
-    public String getYear() {
+    public int getYear() {
         return year;
     }
 
-    public void setYear(String year) {
+    public void setYear(int year) {
         this.year = year;
     }
 
