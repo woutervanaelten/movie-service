@@ -14,14 +14,18 @@ public class Movie {
     private String category;
     private int minutes;
 
+    @Column(unique = true)
+    private String imdbID;
+
     public Movie() {
     }
 
-    public Movie(String title, int year, String category, int minutes) {
+    public Movie(String title, int year, String category, int minutes, String imdbID) {
         setTitle(title);
         setYear(year);
         setCategory(category);
         setMinutes(minutes);
+        setImdbID(imdbID);
     }
 
     public int getId() {
@@ -63,6 +67,10 @@ public class Movie {
     public void setMinutes(int minutes) {
         this.minutes = minutes;
     }
+
+    public  String getImdbID() { return imdbID;}
+
+    public void setImdbID(String imdbID) {this.imdbID = imdbID;}
 
 
 }
