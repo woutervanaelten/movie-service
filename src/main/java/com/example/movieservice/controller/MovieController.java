@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @RestController
-public class BookController {
+public class MovieController {
 
     @Autowired
     private MovieRepository movieRepository;
