@@ -34,6 +34,53 @@ public class MovieControllerUnitTests {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Test
+    public void whenGetMovies_thenReturnJsonMovies() throws Exception {
+
+        Movie movie1 = new Movie("Movie1", 2000, "Category1", 60, "tt01");
+        Movie movie2 = new Movie("Movie2", 2010, "Category2", 60, "tt02");
+
+        List<Movie> movieList = new ArrayList<>();
+        movieList.add(movie1);
+        movieList.add(movie2);
+
+        given(movieRepository.findAll()).willReturn(movieList);
+
+        mockMvc.perform(get("/movies/all", "Movie"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].title", is("Movie1")))
+                .andExpect(jsonPath("$[0].year", is(2000)))
+                .andExpect(jsonPath("$[0].category", is("Category1")))
+                .andExpect(jsonPath("$[0].minutes", is(60)))
+                .andExpect(jsonPath("$[0].imdbID", is("tt01")))
+                .andExpect(jsonPath("$[1].title", is("Movie2")))
+                .andExpect(jsonPath("$[1].year", is(2010)))
+                .andExpect(jsonPath("$[1].category", is("Category2")))
+                .andExpect(jsonPath("$[1].minutes", is(60)))
+                .andExpect(jsonPath("$[1].imdbID", is("tt02")));
+    }
+
+    @Test
+    public void givenMovies_whenGetMovieById_thenReturnJsonMovies() throws Exception {
+        Movie movie1 = new Movie("Movie1", 2000, "Category1", 60, "tt01");
+
+        List<Movie> movieList = new ArrayList<>();
+        movieList.add(movie1);
+
+        given(movieRepository.findMovieById(1)).willReturn(movieList);
+
+        mockMvc.perform(get("/movies/movie/{movieId}", 1))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title", is("Movie1")))
+                .andExpect(jsonPath("$[0].year", is(2000)))
+                .andExpect(jsonPath("$[0].category", is("Category1")))
+                .andExpect(jsonPath("$[0].minutes", is(60)))
+                .andExpect(jsonPath("$[0].imdbID", is("tt01")));
+    }
+
+    @Test
     public void givenMovies_whenGetMoviesByTitle_thenReturnJsonMovies() throws Exception {
 
         Movie movie1 = new Movie("Movie1", 2000, "Category1", 60, "tt01");

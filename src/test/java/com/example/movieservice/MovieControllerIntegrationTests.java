@@ -12,8 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,6 +52,30 @@ public class MovieControllerIntegrationTests {
     }
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    @Test
+    public void whenGetMovies_thenReturnJsonMovies() throws Exception {
+
+        mockMvc.perform(get("/movies/all", "Movie"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].title", is("Movie1")))
+                .andExpect(jsonPath("$[0].year", is(2000)))
+                .andExpect(jsonPath("$[0].category", is("Category1")))
+                .andExpect(jsonPath("$[0].minutes", is(60)))
+                .andExpect(jsonPath("$[0].imdbID", is("tt01")))
+                .andExpect(jsonPath("$[1].title", is("Movie2")))
+                .andExpect(jsonPath("$[1].year", is(2010)))
+                .andExpect(jsonPath("$[1].category", is("Category2")))
+                .andExpect(jsonPath("$[1].minutes", is(60)))
+                .andExpect(jsonPath("$[1].imdbID", is("tt02")))
+                .andExpect(jsonPath("$[2].title", is("Movie3")))
+                .andExpect(jsonPath("$[2].year", is(2020)))
+                .andExpect(jsonPath("$[2].category", is("Category3")))
+                .andExpect(jsonPath("$[2].minutes", is(60)))
+                .andExpect(jsonPath("$[2].imdbID", is("tt03")));
+    }
 
     @Test
     public void givenMovies_whenGetMoviesByTitle_thenReturnJsonMovies() throws Exception {
