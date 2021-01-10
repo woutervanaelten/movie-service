@@ -1,0 +1,92 @@
+apiVersion: v1                    # API version
+kind: Service                     # Type of kubernetes resource
+metadata:
+  name: movie-service-mysql   # Name of the service
+  labels:                         # Labels that will be applied to the service
+    app: movie-service
+spec:
+  ports:
+    - port: 3306
+  selector:                       # Selects any Pod with labels `app=book-info-service,tier=mysql`
+    app: movie-service
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment                    # Type of the kubernetes resource
+metadata:
+  name: movie-service-mysql-deployment           # Name of the deployment
+  labels:                           # Labels applied to this deployment
+    app: movie-service
+spec:
+  selector:
+    matchLabels:                    # This deployment applies to the Pods matching the specified labels
+      app: movie-service
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:                         # Template for the Pods in this deployment
+    metadata:
+      labels:                       # Labels to be applied to the Pods in this deployment
+        app: movie-service
+        tier: mysql
+    spec:                           # The spec for the containers that will be run inside the Pods in this deployment
+      containers:
+        - image: mysql                # The container image
+          name: mysql
+          env:                        # Environment variables passed to the container
+            - name: MYSQL_ROOT_PASSWORD
+              value: "abc123"           # Read environment variables from kubernetes secrets
+          ports:
+            - containerPort: 3306       # The port that the container exposes
+              name: mysql
+---
+apiVersion: apps/v1           # API version
+kind: Deployment              # Type of kubernetes resource
+metadata:
+  name: movie-service-server-deployment    # Name of the deployment
+  labels:                     # Labels that will be applied to this deployment
+    app: movie-service-server
+spec:
+  replicas: 1                 # No. of replicas/pods to run in this deployment
+  selector:
+    matchLabels:              # The deployment applies to any pods mayching the specified labels
+      app: movie-service-server
+  template:                   # Template for creating the pods in this deployment
+    metadata:
+      labels:                 # Labels that will be applied to each Pod in this deployment
+        app: movie-service-server
+    spec:                     # Spec for the containers that will be run in the Pods
+      containers:
+        - name: movie-service-server
+          image: woutervanaelten/movie-service
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8051 # The port that the container exposes
+          resources:
+            limits:
+              cpu: 0.2
+              memory: "200Mi"
+          env:                    # Environment variables supplied to the Pod
+            - name: MYSQL_DB_USERNAME
+              value: "root"
+            - name: MYSQL_DB_PASSWORD
+              value: "abc123"
+            - name: MYSQL_DB_HOST
+              value: "movie-service-mysql"
+---
+apiVersion: v1                      # API version
+kind: Service                       # Type of the kubernetes resource
+metadata:
+  name: movie-service-server    # Name of the service
+  labels:                           # Labels that will be applied to this service
+    app: movie-service-server
+spec:
+  type: NodePort                    # The service will be exposed by opening a Port on each node and proxying it. Allowing connections from outside the cluster
+  selector:
+    app: movie-service-server   # The service exposes Pods with label `app=book-info-service-server`
+  ports:                            # Forward incoming connections on port 8080 to the target port 8051
+    - name: http
+      port: 8051
+      targetPort: 8051
